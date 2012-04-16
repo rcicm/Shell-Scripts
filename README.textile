@@ -1,0 +1,9 @@
+h1. Some Shell Script created on day-by-day
+
+
+
+
+h2. Author:
+
+Rafael Inocencio <rafael_rci@yahoo.com.br>
+https://github.com/rcicm
