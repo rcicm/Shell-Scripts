@@ -7,7 +7,7 @@
 # 2012/04/16 - Rafael Campos
 #############################################
 
-if [ $? != 1 ]
+if [ $# -ne 1 ]
 then
         echo "Usage: $0 SENDER (Ex.: $0 test@test.com)"
         exit 1;
