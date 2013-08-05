@@ -1,0 +1,95 @@
+#######################################################################################################
+### These are the necessary steps to use the GMail API                                              ###
+###                                                                                                 ###
+### Reference: https://developers.google.com/google-apps/email-audit/#accessing_account_information ###
+###                                                                                                 ###
+### Author: Rafael Campos / 2013-07-24                                                              ###
+#######################################################################################################
+#
+# 1 - Generate your public key -  "you need to specify the --gen-key --expert flags in order to generate an RSA encryption key (Option 8 on the GPG menu)"
+#
+
+$ gpg --gen-key --expert
+
+#
+# You may choose the options like show below:
+# Your option? 8
+# Your option? E
+# Your option? Q
+# The key is valid? (0) 0
+# Full Name: [YOUR NAME]
+# Email Address: adminlogin@yourdomain.com
+#
+#
+#
+# 2 - Export your key
+#
+
+$ gpg --armor --export
+
+#
+# 3 - Convert the public key to a base64 encoded string (use an optin in - https://www.google.com.br/search?q=base64+convert), \
+# and insert it into the file "publickey.xml". It should like as follow:
+#
+
+<atom:entry xmlns:atom='http://www.w3.org/2005/Atom' xmlns:apps='http://schemas.google.com/apps/2006'>
+<apps:property name="publicKey" value="LS0tLS1CRUdJTiBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tDQpWZXJzaW9uOiBHbn
+VQRyB2MS40LjEwIChHTlUvTGludXgpDQoNCm1RRU5CRXJXYUQ0QkNBQ3QybmdmczYv
+K1FPR1lieE5iYzNnTG5YSHRxcDdOVFRYTlc0U0pvKy9BMW9VWm9HeEENClF4NnpGWG
+hRLzhNWFc2Nis4U1RTMVlxTkpPQVJGdGpiSUtQd2pyZGN1a2RQellWS0dacmUwUmF4
+Q25NeUNWKzYNCkY0WU5RRDFVZWdIVHUyd0NHUjF1aVlPZkx4VWE3L2RvNnMzMVdSVE
+g4dmJ0aVBZOS82b2JFSXhEakR6S0lxWU8NCnJ2UkRXcUFMQllrbE9rSjNIYmdmeWw0
+MkVzbkxpQWhTK2RNczJQQ0RpMlgwWkpDUFo4ZVRqTHNkQXRxVlpKK1INCldDMUozVU
+R1RmZtY3BzRFlSdFVMOXc2WU10bGFwQys5bW1KM0FCRUJBQUcwVjBSaGMyaGxjaUJV
+WlhOMElDaFUNCmRHVnlNa0JrWVhOb1pYSXRhSGxrTFhSbGMzUXVZMjl0UG9rQk9BUV
+RBUUlBSWdVQ1N0Wm9QZ0liRFFZTENRZ0gNCmsxOVFja1Rwd0Jkc2tFWXVtRnZtV3Zl
+NVVYMlNWVjdmek9DMG5adGdGeHRaR2xKaEdtanNBM3J4RlRsYitJcmENCldaYXlYQ1
+dZaUN6ZDdtOXo1L0t5R0QyR0ZUSy85NG1kbTI1TjZHWGgvYjM1cElGWlhCSS9yWmpy
+WXJoWVJCRnUNCkd0ekdGSXc5QUFuRnlVekVVVVZmUFdVdEJlNXlITVc1NEM2MG5Iaz
+V4WUlhNnFGaGlMcDRQWXFaQ3JZWDFpSXMNCmZSUk9GQT09DQo9U1RIcg0KLS0tLS1F
+TkQgUEdQIFBVQkxJQyBLRVkgQkxPQ0stLS0tLQ=="/>
+</atom:entry>
+
+#
+# 4 - Edit the file "myadmin.conf", with your data (email, domain, company name, app name and version)
+#
+# 5 - Run the script "uploadPublicKey.sh":
+#
+
+ $ ./uploadPublicKey.sh
+
+#
+# If successful, the server returns a 201 CREATED status code
+#
+# 6 - Now, you are able to request an "account information" for a user. Executing the script "accountinformation.sh" like below:
+#
+
+$ ./accountinformation.sh accountinforequest login
+
+#
+# You should receive an answer like this:
+#
+
+<?xml version='1.0' encoding='UTF-8'?><entry xmlns='http://www.w3.org/2005/Atom' xmlns:apps='http://schemas.google.com/apps/2006'><id>https://apps-apis.google.com/a/feeds/compliance/audit/account/[YOURDOMAIN]/[LOGIN]/239102744</id><updated>2013-07-23T22:09:51.179Z</updated><link rel='self' type='application/atom+xml' href='https://apps-apis.google.com/a/feeds/compliance/audit/account/[YOURDOMAIN]/[LOGIN]/239102744'/><link rel='edit' type='application/atom+xml' href='https://apps-apis.google.com/a/feeds/compliance/audit/account/[YOURDOMAIN]/[LOGIN]/239102744'/><apps:property name='status' value='PENDING'/><apps:property name='requestId' value='239102744'/><apps:property name='userEmailAddress' value='[LOGIN]@[YOURDOMAIN]'/><apps:property name='adminEmailAddress' value='emailadmin@yourdmoain.com'/><apps:property name='requestDate' value='2013-07-23 22:09'/></entry>
+
+#
+# The creation of account information is asynchronous and it may take up to several days to prepare.
+#
+# 7 - To retrieve the request's status, execute the script "accountinformation.sh" like below:
+#
+
+$ ./accountinformation.sh statusrequest all
+
+# It will return the status of all requests made through the API in the last month and save it in the file "statusGmailFull.xml"
+# Once the status is COMPLETED, the response has the URL for the encrypted account information files (You'll need it on Item 8, to download the account info files).
+#
+# 8 - Download the encrypted account information files. Execute the script "accountinformation.sh" like below:
+#
+
+$ ./accountinformation.sh downloadaccountinfo URL
+
+#
+# 9 - To decrypt the downloaded account information file ("accountInformation"), use the command below:
+#
+
+$ gpg -d accountInformation
